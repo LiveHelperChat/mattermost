@@ -180,41 +180,6 @@ class erLhcoreClassMattermostValidator
 
     }
 
-    public static function suggestMembers($teamID, $username)
-    {
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
-
-        include_once 'extension/mattermost/vendor/autoload.php';
-
-        $container = new \Pimple\Container([
-            "driver" => [
-                'scheme' => (strpos($data['host'],'http://') !== false ? 'http' : 'https'),
-                "url" => str_replace(array('http://','https://'),'',$data['host']),
-                "login_id" => $data['username'],
-                "password" => $data['password'],
-            ]
-        ]);
-
-        $driver = new Driver($container);
-        $driver->authenticate();
-
-        $channelID = "";
-
-        $resp = $driver->getUserModel()->autocompleteUsers([
-            "team_id" => $teamID,
-            "channel_id" => $channelID,
-            "name" => $username,
-            "limit" => 100,
-        ]);
-
-        if ($resp->getStatusCode() == 200) {
-            return json_decode($resp->getBody(), true);
-        }
-
-        return [];
-    }
-
     public static function getTeams()
     {
         $driver = self::getDriver();
