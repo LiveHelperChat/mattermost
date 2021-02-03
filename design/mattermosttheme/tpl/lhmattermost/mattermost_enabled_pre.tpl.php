@@ -1,0 +1,1 @@
+<?php $mattermost_module_enabled_pre = true;?>
