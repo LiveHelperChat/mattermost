@@ -6,6 +6,15 @@ Min 3.62v Live Helper Chat version.
 
 Youtube tutorial should be done in a few days. Thank you for patient :)
 
+## How it works
+
+1. customer requests a chat from your website
+2. Live Helper Chat will send a message into a specified channel with a button to accept this chat request
+3. One operator will click the button to accept the request (the message now disappears)
+4. Live Helper Chat will now create a new channel for this chat and invites the operator
+5. All messages from the customer will appear in this new channel and all messages from the operator will apear to the customer on your website, even files can be made aviable for the customer or for the operator
+6. (optional) The Channel will be deleted after a given amount of time after the chat has been completed. All chats are still aviable in Live Helper Chat Backoffice for the manager
+
 ## Install instructions for Mattermost part
 
 1. I would suggest creating a new team dedicated just for your customers.
