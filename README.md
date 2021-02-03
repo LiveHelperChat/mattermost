@@ -34,3 +34,7 @@ cd extension/mattermost && composer.phar install
     php cron.php -s site_admin -e mattermost -c cron/update_structure
     ```
 7. Navigate to back office of Live Helper Chat, under module you will find `Mattermost` section.
+8. To delete old Mattermost chats you should be having this cronjob
+    ```
+    php cron.php -s site_admin -e mattermost -c cron/archive
+    ```
