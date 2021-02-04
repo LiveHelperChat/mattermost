@@ -72,7 +72,7 @@
       <translation type="unfinished"/>
     </message>
     <message>
-      <source>After how many days deleted chats from Mattermost</source>
+      <source>After how many hours delete chats from Mattermost</source>
       <translation type="unfinished"/>
     </message>
     <message>

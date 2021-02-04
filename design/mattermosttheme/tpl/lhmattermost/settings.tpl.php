@@ -39,7 +39,7 @@
         </div>
         <div class="col-6">
             <div class="form-group">
-                <input type="text" class="form-control form-control-sm" title="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many days deleted chats from Mattermost');?>" placeholder="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many days deleted chats from Mattermost');?>" name="delete_after" value="<?php echo (isset($data['delete_after']) && !empty($data['delete_after'])) ? htmlspecialchars($data['delete_after']) : ''?>" />
+                <input type="text" class="form-control form-control-sm" title="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many hours delete chats from Mattermost');?>" placeholder="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many days deleted chats from Mattermost');?>" name="delete_after" value="<?php echo (isset($data['delete_after']) && !empty($data['delete_after'])) ? htmlspecialchars($data['delete_after']) : ''?>" />
             </div>
         </div>
     </div>

@@ -13,7 +13,7 @@ if (isset($data['delete_after']) && is_numeric($data['delete_after']) && $data['
 
     $driver = erLhcoreClassMattermostValidator::getDriver();
 
-    foreach (erLhcoreClassModelMattermostChat::getList(array('filterlt' => array('ctime' => time() - ($data['delete_after'] * 24 *3600)))) as $mmChat) {
+    foreach (erLhcoreClassModelMattermostChat::getList(array('filterlt' => array('ctime' => time() - ($data['delete_after'] * 3600)))) as $mmChat) {
 
         $resp = $driver->getChannelModel()->deleteChannel($mmChat->mm_ch_id .'?permanent=true');
 
