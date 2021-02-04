@@ -13,14 +13,23 @@ if (isset($data['delete_after']) && is_numeric($data['delete_after']) && $data['
 
     $driver = erLhcoreClassMattermostValidator::getDriver();
 
+    $counter = 0;
+
     foreach (erLhcoreClassModelMattermostChat::getList(array('filterlt' => array('ctime' => time() - ($data['delete_after'] * 3600)))) as $mmChat) {
 
         $resp = $driver->getChannelModel()->deleteChannel($mmChat->mm_ch_id .'?permanent=true');
 
         if ($resp->getStatusCode() == 200) {
             $mmChat->removeThis();
+            echo "Deleted chat - " . $mmChat->mm_ch_id,"\n";
+        } else {
+            echo "Could not delete chat - " . $mmChat->mm_ch_id,"\n";
         }
     }
+
+    echo "Deleted - " . $counter ." chats.\n";
+} else {
+    echo "Not configured!\n";
 }
 
 ?>
