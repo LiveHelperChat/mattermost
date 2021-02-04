@@ -145,41 +145,6 @@ class erLhcoreClassMattermostValidator
             return $Errors;
     }
 
-    public static function getMembers($ids) {
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
-
-        include_once 'extension/mattermost/vendor/autoload.php';
-
-        $container = new \Pimple\Container([
-            "driver" => [
-                'scheme' => (strpos($data['host'],'http://') !== false ? 'http' : 'https'),
-                "url" => str_replace(array('http://','https://'),'',$data['host']),
-                "login_id" => $data['username'],
-                "password" => $data['password'],
-            ]
-        ]);
-
-        $driver = new Driver($container);
-        $driver->authenticate();
-
-        $resp = $driver->getUserModel()->getUsersByIds(
-            $ids
-        );
-
-        if ($resp->getStatusCode() == 200) {
-            return json_decode($resp->getBody(), true);
-        } else {
-            return [];
-        }
-
-    }
-
     public static function getTeams()
     {
         $driver = self::getDriver();
@@ -192,6 +157,8 @@ class erLhcoreClassMattermostValidator
 
         if ($resp->getStatusCode() == 200) {
             return json_decode($resp->getBody(), true);
+        } else {
+            throw new Exception('We could not fetch a teams!');
         }
 
         return array();
@@ -291,7 +258,7 @@ class erLhcoreClassMattermostValidator
             ]);
 
             if ($resp->getStatusCode() != 201) {
-                // @todo log error
+                throw new Exception('Message could not be send to Mattermost!');
             }
 
         }
@@ -299,7 +266,9 @@ class erLhcoreClassMattermostValidator
 
     public static function messageSendByUser($params)
     {
-        if (self::$ignoreMessageAdded === true) {
+        // Ignore our own callback
+        if ($params['lhc_caller']['function'] == 'processMattermostMessage' && $params['lhc_caller']['class'] == 'erLhcoreClassMattermostValidator')
+        {
             return;
         }
 
@@ -318,7 +287,7 @@ class erLhcoreClassMattermostValidator
             ]);
 
             if ($resp->getStatusCode() != 201) {
-                // @todo log error
+                throw new Exception('Message could not be send to Mattermost!');
             }
         }
     }
@@ -387,7 +356,7 @@ class erLhcoreClassMattermostValidator
 
             return $user;
         } else {
-            // @todo log an error
+            throw new Exception('Operator could not be fetched from Mattermost');
         }
 
     }
@@ -655,6 +624,8 @@ class erLhcoreClassMattermostValidator
             if ($resp->getStatusCode() == 201) {
                 $webhook = json_decode($resp->getBody(), true);
                 $chatVariables['mm_wh_id'] = $webhook['id'];
+            } else {
+                throw new Exception('Webhook could not be created!');
             }
 
             // Save related chat data
@@ -668,7 +639,7 @@ class erLhcoreClassMattermostValidator
             $mmChat->saveThis();
 
         } else {
-            // @todo add error logging
+            throw new Exception('Chat could not be created in mattermost. Please check your integration!');
         }
     }
 
@@ -682,6 +653,8 @@ class erLhcoreClassMattermostValidator
 
         if ($resp->getStatusCode() == 200) {
             return json_decode($resp->getBody(), true);
+        } else {
+            throw new Exception('We could not retrieve a channel!');
         }
 
         return [];
@@ -740,10 +713,7 @@ class erLhcoreClassMattermostValidator
         $chat->unread_op_messages_informed = 0;
         $chat->updateThis(array('update' => array('status','status_sub','user_id','last_msg_id','last_op_msg_time','has_unread_op_messages','unread_op_messages_informed')));
 
-        self::$ignoreMessageAdded = true;
-
         erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.web_add_msg_admin', array('msg' => & $msg, 'chat' => & $chat));
     }
 
-    static $ignoreMessageAdded = false;
 }
