@@ -23,7 +23,6 @@ class erLhcoreClassExtensionMattermost
             'chatClosed'
         ));
 
-        // chat started event
         $dispatcher->listen('chat.chat_started', array(
             $this,
             'chatCreated'
@@ -39,7 +38,6 @@ class erLhcoreClassExtensionMattermost
             'botTransfer'
         ));
 
-        // @todo send messages to mattermost
         $dispatcher->listen('chat.web_add_msg_admin', array(
             $this,
             'messageAdded'
@@ -85,27 +83,60 @@ class erLhcoreClassExtensionMattermost
 
     public function botTransfer($params) {
         if (isset($params['action']['content']['command']) && $params['action']['content']['command'] == 'stopchat' && isset($params['is_online']) && $params['is_online'] == true) {
-            erLhcoreClassMattermostValidator::createChat(array('chat' => $params['chat']));
+            try {
+                erLhcoreClassMattermostValidator::createChat(array('chat' => $params['chat']));
+            } catch (Exception $e) {
+                self::logError($e);
+            }
         }
     }
 
     public function chatCreated($params)
     {
-        erLhcoreClassMattermostValidator::createChat($params);
+        try {
+            erLhcoreClassMattermostValidator::createChat($params);
+        } catch (Exception $e) {
+            self::logError($e);
+        }
     }
 
-    public static function messageAdded($params)
+    public function messageAdded($params)
     {
-        erLhcoreClassMattermostValidator::messageSendByUser($params);
+        try {
+            erLhcoreClassMattermostValidator::messageSendByUser($params);
+        } catch (Exception $e) {
+            self::logError($e);
+        }
     }
 
-    public static function explicitlyClosed($params)
+    public function explicitlyClosed($params)
     {
-        erLhcoreClassMattermostValidator::explicitlyClosed($params);
+        try {
+            erLhcoreClassMattermostValidator::explicitlyClosed($params);
+        } catch (Exception $e) {
+            self::logError($e);
+        }
     }
 
     public function chatClosed($params)
     {
-        erLhcoreClassMattermostValidator::chatClosed($params);
+        try {
+            erLhcoreClassMattermostValidator::chatClosed($params);
+        } catch (Exception $e) {
+            self::logError($e);
+        }
+    }
+
+    public function logError($e) {
+        erLhcoreClassLog::write($e->getMessage() . '|' . $e->getTraceAsString(),
+            ezcLog::SUCCESS_AUDIT,
+            array(
+                'source' => 'mm',
+                'category' => 'mm',
+                'line' => __LINE__,
+                'file' => __FILE__,
+                'object_id' => 0
+            )
+        );
     }
 }
