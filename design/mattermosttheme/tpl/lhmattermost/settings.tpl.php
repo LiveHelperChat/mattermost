@@ -156,7 +156,9 @@
         </script>
         <?php else : ?>
 
-        <?php echo htmlspecialchars($errorMessage)?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo htmlspecialchars($errorMessage)?>
+            </div>
 
     <?php endif; ?>
 
