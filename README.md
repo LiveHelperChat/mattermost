@@ -4,7 +4,7 @@ This extension allow making conversations directly on [Mattermost](https://matte
 
 Min 3.62v Live Helper Chat version.
 
-Youtube tutorial should be done in a few days. Thank you for patient :)
+Youtube video can be found here https://youtu.be/MnJHuHXbiXY
 
 ## How it works
 
