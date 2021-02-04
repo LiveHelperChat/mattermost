@@ -52,6 +52,12 @@ cd extension/mattermost && composer.phar install
     php cron.php -s site_admin -e mattermost -c cron/archive
     ```
 
+## Troubleshooting
+
+* Check mattermost server for an error
+* Check cache/default.log for an error in Live Helper Chat
+* Check audit log in Live Helper Chat back office
+
 ## Tips
 
 Because most of the time you won't be logged to Live Helper Chat back office, system won't know are you online or not. To avoid the offline widget you can set up
