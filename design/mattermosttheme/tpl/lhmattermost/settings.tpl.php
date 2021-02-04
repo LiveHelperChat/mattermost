@@ -39,7 +39,7 @@
         </div>
         <div class="col-6">
             <div class="form-group">
-                <input type="text" class="form-control form-control-sm" title="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many hours delete chats from Mattermost');?>" placeholder="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many days deleted chats from Mattermost');?>" name="delete_after" value="<?php echo (isset($data['delete_after']) && !empty($data['delete_after'])) ? htmlspecialchars($data['delete_after']) : ''?>" />
+                <input type="text" class="form-control form-control-sm" title="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many hours delete chats from Mattermost');?>" placeholder="<?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','After how many hours delete chats from Mattermost');?>" name="delete_after" value="<?php echo (isset($data['delete_after']) && !empty($data['delete_after'])) ? htmlspecialchars($data['delete_after']) : ''?>" />
             </div>
         </div>
     </div>
@@ -80,9 +80,21 @@
 
     <div class="form-group">
         <strong><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Channel in which notifications will be published');?>:</strong>
-        <input type="hidden" id="id_channel_id" name="channel_id" value="<?php isset($data['channel_id']) ? print htmlspecialchars($data['channel_id']) :'' ?>" />
-        <input type="hidden" id="id_channel_name" name="channel_name" value="<?php isset($data['channel_name']) ? print htmlspecialchars($data['channel_name']) :'' ?>" />
+
         <span id="id_channel_name_display" class="badge badge-info"><?php echo htmlspecialchars(isset($data['channel_name']) ? $data['channel_name'] : '') ?></span>
+
+        <p><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','If you do not find a channel. E.g it is a private channel you can put details there.')?></p>
+        <div class="row">
+            <div class="col-6">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Channel ID')?></label>
+                <input type="text" id="id_channel_id" class="form-control form-control-sm" name="channel_id" value="<?php isset($data['channel_id']) ? print htmlspecialchars($data['channel_id']) :'' ?>" />
+            </div>
+            <div class="col-6">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Channel name')?></label>
+                <input type="text" id="id_channel_name" class="form-control form-control-sm" name="channel_name" value="<?php isset($data['channel_name']) ? print htmlspecialchars($data['channel_name']) :'' ?>" />
+            </div>
+        </div>
+
     </div>
 
     <hr class="my-2">

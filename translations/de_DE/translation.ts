@@ -96,6 +96,18 @@
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>If you do not find a channel. E.g it is a private channel you can put details there.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Channel ID</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Channel name</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>New operators configuration.</source>
       <translation type="unfinished"/>
     </message>
@@ -129,13 +141,6 @@
     </message>
     <message>
       <source>Save settings</source>
-      <translation type="unfinished"/>
-    </message>
-  </context>
-  <context>
-    <name>pagelayout/pagelayout</name>
-    <message>
-      <source>Mattermost</source>
       <translation type="unfinished"/>
     </message>
   </context>
