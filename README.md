@@ -8,7 +8,7 @@ Min 3.62v Live Helper Chat version.
 
 Youtube video can be found here https://youtu.be/MnJHuHXbiXY
 
-![See image](https://raw.githubusercontent.com/LiveHelperChat/mattermost/master/doc/screenshot.png)
+![See image](https://raw.githubusercontent.com/LiveHelperChat/mattermost/main/doc/screenshot.png)
 
 ## How it works
 
