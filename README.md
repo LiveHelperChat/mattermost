@@ -1,10 +1,14 @@
 This extension allow making conversations directly on [Mattermost](https://mattermost.com/) platform without touching Live Helper Chat back office completely.
 
+Mattermost is a [Slack](https://slack.com/), [Rocket.Chat](https://rocket.chat/) alternative.
+
 ## Requirements
 
 Min 3.62v Live Helper Chat version.
 
 Youtube video can be found here https://youtu.be/MnJHuHXbiXY
+
+![See image](https://raw.githubusercontent.com/LiveHelperChat/mattermost/master/doc/screenshot.png)
 
 ## How it works
 
@@ -47,3 +51,13 @@ cd extension/mattermost && composer.phar install
     ```
     php cron.php -s site_admin -e mattermost -c cron/archive
     ```
+
+## Tips
+
+Because most of the time you won't be logged to Live Helper Chat back office, system won't know are you online or not. To avoid the offline widget you can set up
+
+* [Department online hours](https://doc.livehelperchat.com/docs/department/department/#automate-online-hours)
+
+For Mattermost to remove completely old chats instead of soft deletes. Mattermost has to have configured permanent deletion. 
+
+https://docs.mattermost.com/administration/config-settings.html#enable-api-channel-deletion
