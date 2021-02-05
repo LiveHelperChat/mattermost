@@ -182,13 +182,31 @@
     <p><small>{department}, {time_created_front}, {additional_data}, {id}, {url}, {referrer}, {messages}, {remarks}, {nick}, {email}, {country_code}, {country_name}, {city}, {user_tz_identifier}</small></p>
 
     <div class="row pb-2">
-        <div class="col-6">
-            <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Header text for the chat channel')?></label>
-            <textarea class="form-control" name="intro_header"><?php echo isset($data['intro_header']) ? htmlspecialchars($data['intro_header']) : ''?></textarea>
+
+        <div class="col-12">
+            <div class="form-group">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Default channel name, you can use replaceable variables also.')?></label>
+                <input type="text" class="form-control" name="channel_chat_name" value="<?php echo isset($data['channel_chat_name']) ? htmlspecialchars($data['channel_chat_name']) : ''?>" />
+            </div>
         </div>
-        <div class="col-6">
-            <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Intro text join the chat')?></label>
-            <textarea class="form-control" name="intro_request"><?php echo isset($data['intro_request']) ? htmlspecialchars($data['intro_request']) : ''?></textarea>
+
+        <div class="col-12">
+            <div class="form-group">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Header text for the chat channel')?></label>
+                <textarea class="form-control" name="intro_header"><?php echo isset($data['intro_header']) ? htmlspecialchars($data['intro_header']) : ''?></textarea>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-group">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Intro text join the chat')?></label>
+                <textarea class="form-control" name="intro_request"><?php echo isset($data['intro_request']) ? htmlspecialchars($data['intro_request']) : ''?></textarea>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-group">
+                <label><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Initial message to the channel')?></label>
+                <textarea class="form-control" name="msg_request"><?php echo isset($data['msg_request']) ? htmlspecialchars($data['msg_request']) : ''?></textarea>
+            </div>
         </div>
     </div>
 

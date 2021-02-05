@@ -25,10 +25,16 @@ class erLhcoreClassMattermostValidator
                 'channel_name' => new ezcInputFormDefinitionElement(
                     ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
                 ),
+                'msg_request' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+                ),
                 'intro_header' => new ezcInputFormDefinitionElement(
                     ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
                 ),
                 'intro_request' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
+                ),
+                'channel_chat_name' => new ezcInputFormDefinitionElement(
                     ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
                 ),
                 'enabled' => new ezcInputFormDefinitionElement(
@@ -78,6 +84,20 @@ class erLhcoreClassMattermostValidator
             if ( $form->hasValidData( 'channel_id' ))
             {
                 $data['channel_id'] = $form->channel_id;
+            }
+
+            if ( $form->hasValidData( 'msg_request' ))
+            {
+                $data['msg_request'] = $form->msg_request;
+            } else {
+                $data['msg_request'] = '';
+            }
+
+            if ( $form->hasValidData( 'channel_chat_name' ))
+            {
+                $data['channel_chat_name'] = $form->channel_chat_name;
+            } else {
+                $data['channel_chat_name'] = '';
             }
 
             if ( $form->hasValidData( 'intro_header' ))
@@ -478,6 +498,49 @@ class erLhcoreClassMattermostValidator
 
     }
 
+    public static function replaceVariables($string, $params)
+    {
+        $string = str_replace(array(
+            '{department}',
+            '{phone}',
+            '{time_created_front}',
+            '{additional_data}',
+            '{id}',
+            '{url}',
+            '{referrer}',
+            '{messages}',
+            '{remarks}',
+            '{nick}',
+            '{email}',
+            '{country_code}',
+            '{country_name}',
+            '{city}',
+            '{user_tz_identifier}'
+        ), array(
+            (string)$params['chat']->department,
+            (string)$params['chat']->phone,
+            date(erLhcoreClassModule::$dateDateHourFormat,$params['chat']->time),
+            $params['chat']->additional_data,
+            $params['chat']->id,
+            (erLhcoreClassSystem::$httpsMode == true ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurl('user/login') . '/(r)/' . rawurlencode(base64_encode('chat/single/' . $params['chat']->id)),
+            $params['chat']->referrer,
+            $params['msg'],
+            $params['chat']->remarks,
+            $params['chat']->nick,
+            $params['chat']->email,
+            $params['chat']->country_code,
+            $params['chat']->country_name,
+            $params['chat']->city,
+            $params['chat']->user_tz_identifier
+        ), $string);
+
+        $string = erLhcoreClassGenericBotWorkflow::translateMessage($string, array('chat' => $params['chat'], 'args' => []));
+
+        return $string;
+
+    }
+
+
     public static function createChat($params)
     {
         // Chat is in bot mode so just ignore it.
@@ -497,74 +560,19 @@ class erLhcoreClassMattermostValidator
 
         $messagesContent = (is_object($params['msg']) && $params['msg']->msg != '') ? $params['msg']->msg : '';
 
-        $intro = str_replace(array(
-            '{department}',
-            '{time_created_front}',
-            '{additional_data}',
-            '{id}',
-            '{url}',
-            '{referrer}',
-            '{messages}',
-            '{remarks}',
-            '{nick}',
-            '{email}',
-            '{country_code}',
-            '{country_name}',
-            '{city}',
-            '{user_tz_identifier}'
-        ), array(
-        (string)$params['chat']->department,
-        date(erLhcoreClassModule::$dateDateHourFormat,$params['chat']->time),
-            $params['chat']->additional_data,
-            $params['chat']->id,
-        (erLhcoreClassSystem::$httpsMode == true ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurl('user/login') . '/(r)/' . rawurlencode(base64_encode('chat/single/' . $params['chat']->id)),
-            $params['chat']->referrer,
-            $messagesContent,
-            $params['chat']->remarks,
-            $params['chat']->nick,
-            $params['chat']->email,
-            $params['chat']->country_code,
-            $params['chat']->country_name,
-            $params['chat']->city,
-            $params['chat']->user_tz_identifier
-    ), $data['intro_header']);
+        $intro = self::replaceVariables($data['intro_header'], ['chat' => $params['chat'], 'msg' => $messagesContent]);
+        $intro_request = self::replaceVariables($data['intro_request'], ['chat' => $params['chat'], 'msg' => $messagesContent]);
+        $msg_initial = self::replaceVariables($data['msg_request'], ['chat' => $params['chat'], 'msg' => erLhcoreClassBBCodePlain::make_clickable($messagesContent, array('sender' => 0))]);
+        $channel_chat_name = self::replaceVariables($data['channel_chat_name'], ['chat' => $params['chat'], 'msg' => erLhcoreClassBBCodePlain::make_clickable($messagesContent, array('sender' => 0))]);
 
-        $intro_request = str_replace(array(
-            '{department}',
-            '{time_created_front}',
-            '{additional_data}',
-            '{id}',
-            '{url}',
-            '{referrer}',
-            '{messages}',
-            '{remarks}',
-            '{nick}',
-            '{email}',
-            '{country_code}',
-            '{country_name}',
-            '{city}',
-            '{user_tz_identifier}'
-        ), array(
-            (string)$params['chat']->department,
-            date(erLhcoreClassModule::$dateDateHourFormat,$params['chat']->time),
-            $params['chat']->additional_data,
-            $params['chat']->id,
-            (erLhcoreClassSystem::$httpsMode == true ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurl('user/login') . '/(r)/' . rawurlencode(base64_encode('chat/single/' . $params['chat']->id)),
-            $params['chat']->referrer,
-            $messagesContent,
-            $params['chat']->remarks,
-            $params['chat']->nick,
-            $params['chat']->email,
-            $params['chat']->country_code,
-            $params['chat']->country_name,
-            $params['chat']->city,
-            $params['chat']->user_tz_identifier
-        ), $data['intro_request']);
+        if (empty($channel_chat_name)) {
+            $channel_chat_name = ($params['chat']->nick != 'Visitor' ?  ($params['chat']->nick.', ' . date('Y-m-d H:i:s') ) : ('ID' . $params['chat']->id. ', ' . date('Y-m-d H:i:s')));
+        }
 
         $resp = $driver->getChannelModel()->createChannel([
             "team_id" => $data['team_id'],
             "name" => 'lhc-' . $params['chat']->id,
-            "display_name" => ($params['chat']->nick != 'Visitor' ?  ($params['chat']->nick.', ' . date('Y-m-d H:i:s') ) : ('ID' . $params['chat']->id. ', ' . date('Y-m-d H:i:s'))),
+            "display_name" => $channel_chat_name,
             "header" => $intro,
             "type" => 'O'
         ]);
@@ -603,12 +611,11 @@ class erLhcoreClassMattermostValidator
             ]);
 
             // Send original message to the chat
-            if (is_object($params['msg']) && $params['msg']->msg != ''){
-                $driver->getPostModel()->createPost([
-                    "channel_id" => $channel['id'],
-                    "message" => erLhcoreClassBBCodePlain::make_clickable($params['msg']->msg, array('sender' => 0)),
-                ]);
-            }
+            $driver->getPostModel()->createPost([
+                "channel_id" => $channel['id'],
+                "message" => $msg_initial,
+            ]);
+
 
             // Create outgoing webhook
             $resp = $driver->getWebhookModel()->createOutgoingWebhook([
@@ -670,47 +677,82 @@ class erLhcoreClassMattermostValidator
             return;
         }
 
-        $user_id = isset($data['lhc_user_id']) && $data['lhc_user_id'] > 0 ? $data['lhc_user_id'] : 1;
+        $operator = self::getOperatorByMatterMostUserId($payload['user_id']);
 
         if ($chat->status == erLhcoreClassModelChat::STATUS_PENDING_CHAT) {
             $chat->status = erLhcoreClassModelChat::STATUS_ACTIVE_CHAT;
             $chat->status_sub = erLhcoreClassModelChat::STATUS_SUB_OWNER_CHANGED;
-            $chat->user_id = $user_id > 0 ? $user_id : 0;
+            $chat->user_id = $operator->id;
         }
 
-        // Save message
-        $msg = new erLhcoreClassModelmsg();
-        $msg->msg = trim($payload['text']);
-        $msg->chat_id = $chat->id;
-        $msg->user_id = $user_id;
-        $msg->time = time();
-        $msg->name_support = $payload['user_name'];
+        $msgText = trim($payload['text']);
+        $messageUserId = $operator->id;
 
-        if (!empty($payload['file_ids'])) {
-            $files = explode(',',$payload['file_ids']);
+        $ignoreMessage = false;
 
-            $driver = self::getDriver();
+        if (strpos($msgText, '!') === 0) {
+            $statusCommand = erLhcoreClassChatCommand::processCommand(array('no_ui_update' => true, 'user' => $operator, 'msg' => $msgText, 'chat' => & $chat));
+            if ($statusCommand['processed'] === true) {
+                $messageUserId = -1; // Message was processed set as internal message
 
-            foreach ($files as $fileId) {
-                $resp = $driver->getFileModel()->getMetadataForFile($fileId);
-                if ($resp->getStatusCode() == 200) {
-                    $linkData = json_decode($resp->getBody(), true);
-                    $msg->msg .= "\n".'[url=' . erLhcoreClassXMP::getBaseHost() . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurldirect('mattermost/download') .'/' . $chat->id . '/' . $chat->hash . '/' . $fileId .']'.$linkData['name'].'[/url]';
+                $rawMessage = !isset($statusCommand['raw_message']) ? $msgText : $statusCommand['raw_message'];
+
+                $msgText = trim($rawMessage .' '. ($statusCommand['process_status'] != '' ? '|| '.$statusCommand['process_status'] : ''));
+
+                if (isset($statusCommand['ignore']) && $statusCommand['ignore'] == true) {
+                    $ignoreMessage = true;
                 }
+
+                if (isset($statusCommand['info'])) {
+                    $msgText .= $statusCommand['info'];
+                }
+
+                $msg = new erLhcoreClassModelmsg();
+                $msg->user_id = $operator->id;
+                $msg->msg = $msgText;
+                $msg->name_support = $operator->name_support;
+
+                self::messageSendByUser(array('chat' => $chat, 'msg' => $msg));
+            }
+        }
+
+        if ($ignoreMessage == false) {
+
+            // Save message
+            $msg = new erLhcoreClassModelmsg();
+            $msg->msg = $msgText;
+            $msg->chat_id = $chat->id;
+            $msg->user_id = $messageUserId;
+            $msg->time = time();
+            $msg->name_support = $payload['user_name'];
+
+            if (!empty($payload['file_ids'])) {
+                $files = explode(',', $payload['file_ids']);
+
+                $driver = self::getDriver();
+
+                foreach ($files as $fileId) {
+                    $resp = $driver->getFileModel()->getMetadataForFile($fileId);
+                    if ($resp->getStatusCode() == 200) {
+                        $linkData = json_decode($resp->getBody(), true);
+                        $msg->msg .= "\n" . '[url=' . erLhcoreClassXMP::getBaseHost() . $_SERVER['HTTP_HOST'] . erLhcoreClassDesign::baseurldirect('mattermost/download') . '/' . $chat->id . '/' . $chat->hash . '/' . $fileId . ']' . $linkData['name'] . '[/url]';
+                    }
+                }
+
+                $msg->msg = trim($msg->msg);
             }
 
-            $msg->msg = trim($msg->msg);
+            erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_msg_admin_saved', array('msg' => & $msg, 'chat' => & $chat));
+
+            $msg->saveThis();
+
+            // Update chat
+            $chat->last_msg_id = $msg->id;
+            $chat->last_op_msg_time = time();
+            $chat->has_unread_op_messages = 1;
+            $chat->unread_op_messages_informed = 0;
         }
 
-        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_msg_admin_saved',array('msg' => & $msg,'chat' => & $chat));
-
-        $msg->saveThis();
-
-        // Update chat
-        $chat->last_msg_id = $msg->id;
-        $chat->last_op_msg_time = time();
-        $chat->has_unread_op_messages = 1;
-        $chat->unread_op_messages_informed = 0;
         $chat->updateThis(array('update' => array('status','status_sub','user_id','last_msg_id','last_op_msg_time','has_unread_op_messages','unread_op_messages_informed')));
 
         erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.web_add_msg_admin', array('msg' => & $msg, 'chat' => & $chat));
