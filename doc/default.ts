@@ -132,11 +132,19 @@
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Default channel name, you can use replaceable variables also.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Header text for the chat channel</source>
       <translation type="unfinished"/>
     </message>
     <message>
       <source>Intro text join the chat</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Initial message to the channel</source>
       <translation type="unfinished"/>
     </message>
     <message>
