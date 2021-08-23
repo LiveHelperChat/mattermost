@@ -32,4 +32,25 @@ $ViewList['settings'] = array(
     'functions' => array('manage')
 );
 
+$ViewList['listoptions'] = array(
+    'params' => array(),
+    'functions' => array('manage')
+);
+
+$ViewList['newoption'] = array(
+    'params' => array(),
+    'functions' => array('manage')
+);
+
+$ViewList['editoption'] = array(
+    'params' => array('id'),
+    'functions' => array('manage')
+);
+
+$ViewList['deleteoption'] = array(
+    'params' => array('id'),
+    'uparams' => array('csfr'),
+    'functions' => array('manage')
+);
+
 $FunctionList['manage'] = array('explain' => 'Allow operator to manage Mattermost integration');

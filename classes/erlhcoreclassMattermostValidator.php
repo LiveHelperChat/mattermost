@@ -4,7 +4,7 @@ use \Gnello\Mattermost\Driver;
 
 class erLhcoreClassMattermostValidator
 {
-    public static function validateSettings(& $data)
+    public static function validateSettings(& $data, $params = array())
     {
             $definition = array(
                 'username' => new ezcInputFormDefinitionElement(
@@ -54,7 +54,13 @@ class erLhcoreClassMattermostValidator
                 ),
                 'user_groups' => new ezcInputFormDefinitionElement(
                     ezcInputFormDefinitionElement::OPTIONAL, 'int', null, FILTER_REQUIRE_ARRAY
-                )
+                ),
+                'active' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
+                ),
+                'dep_id' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 1)
+                ),
             );
 
             $form = new ezcInputForm( INPUT_POST, $definition );
@@ -65,6 +71,22 @@ class erLhcoreClassMattermostValidator
                 $data['username'] = $form->username;
             } else {
                 $Errors[] =  erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Please enter a username!');
+            }
+
+            if (isset($params['per_department']) && $params['per_department'] == true) {
+
+                if ($form->hasValidData('active') && $form->active == true) {
+                    $params['item']->active = 1;
+                } else {
+                    $params['item']->active = 0;
+                }
+
+                if ($form->hasValidData('dep_id')) {
+                    $params['item']->dep_id = $form->dep_id;
+                } else {
+                    $Errors[] = erTranslationClassLhTranslation::getInstance()->getTranslation('xmppservice/operatorvalidator', 'Please choose a department!');
+                }
+
             }
 
             if ( $form->hasValidData( 'host' ) && $form->host != '')
@@ -165,9 +187,10 @@ class erLhcoreClassMattermostValidator
             return $Errors;
     }
 
-    public static function getTeams()
+    public static function getTeams($params = array())
     {
-        $driver = self::getDriver();
+
+        $driver = self::getDriver($params);
 
         $resp = $driver->getTeamModel()->getTeams([
             "page" => 0,
@@ -184,7 +207,7 @@ class erLhcoreClassMattermostValidator
         return array();
     }
 
-    public static function getDriver()
+    public static function getDriver($params = array())
     {
         static $driverInstance = null;
 
@@ -192,8 +215,20 @@ class erLhcoreClassMattermostValidator
             return $driverInstance;
         }
 
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
+        if (isset($params['chat'])) {
+            $settingsPerDepartment = erLhcoreClassModelMattermostSetting::findOne(array('filter' => array('dep_id' => $params['chat']->dep_id)));
+        } elseif (isset($params['item']) && $params['item'] instanceof erLhcoreClassModelMattermostSetting) {
+            $settingsPerDepartment = $params['item'];
+        } else {
+            $settingsPerDepartment = null;
+        }
+
+        if ($settingsPerDepartment instanceof erLhcoreClassModelMattermostSetting) {
+            $data = $settingsPerDepartment->settings_array;
+        } else {
+            $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+            $data = (array) $osTicketOptions->data;
+        }
 
         include_once 'extension/mattermost/vendor/autoload.php';
 
@@ -212,10 +247,9 @@ class erLhcoreClassMattermostValidator
         return $driverInstance;
     }
 
-    public static function login($params) {
+    public static function login($params, $paramsExecution = array()) {
 
         $ch = curl_init();
-        $headers = [];
 
         curl_setopt($ch,CURLOPT_POST,1);
         curl_setopt($ch,CURLOPT_POSTFIELDS, json_encode(array('login_id' => $params['username'], 'password' => $params['password'])));
@@ -239,12 +273,25 @@ class erLhcoreClassMattermostValidator
         if ($httpcode == 200) {
             if (isset($content['id']) && !empty($content['id'])) {
 
-                $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-                $data = (array) $osTicketOptions->data;
-                $data['user_id'] = $content['id'];
+                if (isset($paramsExecution['item']) && $paramsExecution['item'] instanceof erLhcoreClassModelMattermostSetting) {
 
-                $osTicketOptions->value = serialize($data);
-                $osTicketOptions->saveThis();
+                    $data = $paramsExecution['item']->settings_array;
+                    $data['user_id'] = $content['id'];
+
+                    $paramsExecution['item']->settings_array = $data;
+                    $paramsExecution['item']->settings = json_encode($data);
+
+                    if ($paramsExecution['item']->id > 0) {
+                        $paramsExecution['item']->saveThis();
+                    }
+
+                } else {
+                    $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+                    $data = (array) $osTicketOptions->data;
+                    $data['user_id'] = $content['id'];
+                    $osTicketOptions->value = serialize($data);
+                    $osTicketOptions->saveThis();
+                }
 
             } else {
                 throw new Exception(erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Authenticated user id could not be found!'));
@@ -270,7 +317,7 @@ class erLhcoreClassMattermostValidator
 
         if (isset($variablesArray['mm_ch_id'])) {
 
-            $driver = self::getDriver();
+            $driver = self::getDriver(array('chat' => $chat));
 
             $resp = $driver->getPostModel()->createPost([
                 "channel_id" => $variablesArray['mm_ch_id'],
@@ -298,7 +345,7 @@ class erLhcoreClassMattermostValidator
 
         if (isset($variablesArray['mm_ch_id'])) {
 
-            $driver = self::getDriver();
+            $driver = self::getDriver(array('chat' => $chat));
 
             $resp = $driver->getPostModel()->createPost([
                 "channel_id" => $variablesArray['mm_ch_id'],
@@ -312,7 +359,7 @@ class erLhcoreClassMattermostValidator
         }
     }
 
-    public static function getOperatorByMatterMostUserId($userId)
+    public static function getOperatorByMatterMostUserId($userId, $params = array())
     {
         $mmUser = erLhcoreClassModelMattermostUser::findOne(['filter' => ['mm_user_id' => $userId]]);
 
@@ -323,10 +370,20 @@ class erLhcoreClassMattermostValidator
             }
         }
 
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
+        $settingsPerDepartment = null;
 
-        $driver = self::getDriver();
+        if (isset($params['chat'])) {
+            $settingsPerDepartment = erLhcoreClassModelMattermostSetting::findOne(array('filter' => array('dep_id' => $params['chat']->dep_id)));
+        }
+
+        if ($settingsPerDepartment instanceof erLhcoreClassModelMattermostSetting) {
+            $data = $settingsPerDepartment->settings_array;
+        } else {
+            $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+            $data = (array) $osTicketOptions->data;
+        }
+
+        $driver = self::getDriver($params);
 
         $resp = $driver->getUserModel()->getUser($userId);
 
@@ -383,17 +440,24 @@ class erLhcoreClassMattermostValidator
 
     public static function processAcceptChat($chat, $payload)
     {
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
 
-        $driver = self::getDriver();
+        $settingsPerDepartment = erLhcoreClassModelMattermostSetting::findOne(array('filter' => array('dep_id' => $chat->dep_id)));
+
+        if ($settingsPerDepartment instanceof erLhcoreClassModelMattermostSetting){
+            $data = $settingsPerDepartment->settings_array;
+        } else {
+            $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+            $data = (array) $osTicketOptions->data;
+        }
+
+        $driver = self::getDriver(array('chat' => $chat));
 
         $chatVariables = $chat->chat_variables_array;
 
         // Add operator to chat channel who has accepted a chat
         $driver->getChannelModel()->addUser($chatVariables['mm_ch_id'], ['user_id' => $payload['user_id']]);
 
-        $operator = self::getOperatorByMatterMostUserId($payload['user_id']);
+        $operator = self::getOperatorByMatterMostUserId($payload['user_id'], array('chat' => $chat));
 
         // Login operator
         erLhcoreClassUser::instance()->setLoggedUser($operator->id);
@@ -548,15 +612,21 @@ class erLhcoreClassMattermostValidator
             return;
         }
 
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
+        $settingsPerDepartment = erLhcoreClassModelMattermostSetting::findOne(array('filter' => array('dep_id' => $params['chat']->dep_id)));
 
-        // Check is extension enabled
-        if ($data['enabled'] !== true) {
-            return null;
+        if ($settingsPerDepartment instanceof erLhcoreClassModelMattermostSetting){
+            $data = $settingsPerDepartment->settings_array;
+        } else {
+            $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+            $data = (array) $osTicketOptions->data;
+
+            // Check is extension enabled
+            if ($data['enabled'] !== true) {
+                return null;
+            }
         }
 
-        $driver = self::getDriver();
+        $driver = self::getDriver($params);
 
         $messagesContent = (is_object($params['msg']) && $params['msg']->msg != '') ? $params['msg']->msg : '';
 
@@ -650,9 +720,9 @@ class erLhcoreClassMattermostValidator
         }
     }
 
-    public static function suggestChannel($teamID, $query)
+    public static function suggestChannel($teamID, $query, $item = null)
     {
-        $driver = self::getDriver();
+        $driver = self::getDriver(array('item' => $item));
 
         $resp = $driver->getChannelModel()->autocompleteChannels($teamID, [
             "name" => $query,
@@ -669,15 +739,23 @@ class erLhcoreClassMattermostValidator
 
     public static function processMattermostMessage($chat, $payload)
     {
-        $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
-        $data = (array) $osTicketOptions->data;
+
+        $settingsPerDepartment = erLhcoreClassModelMattermostSetting::findOne(array('filter' => array('dep_id' => $chat->dep_id)));
+
+        if ($settingsPerDepartment instanceof erLhcoreClassModelMattermostSetting){
+            $data = $settingsPerDepartment->settings_array;
+        } else {
+            $osTicketOptions = erLhcoreClassModelChatConfig::fetch('mattermost_options');
+            $data = (array)$osTicketOptions->data;
+        }
+
 
         // Ignore our own messages send to a channel
         if ($payload['user_id'] == $data['user_id']) {
             return;
         }
 
-        $operator = self::getOperatorByMatterMostUserId($payload['user_id']);
+        $operator = self::getOperatorByMatterMostUserId($payload['user_id'], array('chat' => $chat));
 
         if ($chat->status == erLhcoreClassModelChat::STATUS_PENDING_CHAT) {
             $chat->status = erLhcoreClassModelChat::STATUS_ACTIVE_CHAT;
@@ -729,7 +807,7 @@ class erLhcoreClassMattermostValidator
             if (!empty($payload['file_ids'])) {
                 $files = explode(',', $payload['file_ids']);
 
-                $driver = self::getDriver();
+                $driver = self::getDriver(array('chat' => $chat));
 
                 foreach ($files as $fileId) {
                     $resp = $driver->getFileModel()->getMetadataForFile($fileId);

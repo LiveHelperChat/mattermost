@@ -1,7 +1,13 @@
 <?php
 
+$item = null;
+
+if (isset($_POST['i']) && is_numeric($_POST['i']) ) {
+    $item = erLhcoreClassModelMattermostSetting::fetch($_POST['i']);
+}
+
 if ($_POST['q'] != '') {
-    $channels = erLhcoreClassMattermostValidator::suggestChannel($_POST['t'], $_POST['q']);
+    $channels = erLhcoreClassMattermostValidator::suggestChannel($_POST['t'], $_POST['q'], $item);
 } else {
     $channels = [];
 }

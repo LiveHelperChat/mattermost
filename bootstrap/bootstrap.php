@@ -73,7 +73,8 @@ class erLhcoreClassExtensionMattermost
         $classesArray = array (
             'erLhcoreClassMattermostValidator' => 'extension/mattermost/classes/erlhcoreclassMattermostValidator.php',
             'erLhcoreClassModelMattermostChat' => 'extension/mattermost/classes/erlhcoreclassmodelmmchat.php',
-            'erLhcoreClassModelMattermostUser' => 'extension/mattermost/classes/erlhcoreclassmodelmmuser.php'
+            'erLhcoreClassModelMattermostUser' => 'extension/mattermost/classes/erlhcoreclassmodelmmuser.php',
+            'erLhcoreClassModelMattermostSetting' => 'extension/mattermost/classes/erlhcoreclassmodelmmsetting.php'
         );
 
         if (key_exists ( $className, $classesArray )) {
