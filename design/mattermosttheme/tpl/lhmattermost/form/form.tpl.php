@@ -81,7 +81,7 @@
         <div class="form-group">
             <strong><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','Channel in which notifications will be published');?>:</strong>
 
-            <span id="id_channel_name_display" class="badge badge-info"><?php echo htmlspecialchars(isset($data['channel_name']) ? $data['channel_name'] : '') ?></span>
+            <span id="id_channel_name_display" class="badge bg-info"><?php echo htmlspecialchars(isset($data['channel_name']) ? $data['channel_name'] : '') ?></span>
 
             <p><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','If you do not find a channel. E.g it is a private channel you can put details there.')?></p>
             <div class="row">
