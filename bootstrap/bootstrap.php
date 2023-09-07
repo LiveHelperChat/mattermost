@@ -3,6 +3,7 @@
 /**
  * Direct integration with Mattermost
  * */
+#[\AllowDynamicProperties]
 class erLhcoreClassExtensionMattermost
 {
     private static $persistentSession;

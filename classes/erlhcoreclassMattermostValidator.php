@@ -1,7 +1,7 @@
 <?php
 
 use \Gnello\Mattermost\Driver;
-
+#[\AllowDynamicProperties]
 class erLhcoreClassMattermostValidator
 {
     public static function validateSettings(& $data, $params = array())
