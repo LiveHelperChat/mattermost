@@ -60,10 +60,20 @@ cd extension/mattermost && composer.phar install
 
 ## Tips
 
+### Staying online
+
 Because most of the time you won't be logged to Live Helper Chat back office, system won't know are you online or not. To avoid the offline widget you can set up
 
 * [Department online hours](https://doc.livehelperchat.com/docs/department/department/#automate-online-hours)
 
-For Mattermost to remove completely old chats instead of soft deletes. Mattermost has to have configured permanent deletion. 
+### Permanently delete old chats
+
+For Mattermost to remove completely old chats instead of soft deletes. Mattermost has to have configured permanent deletion. Otherwise you will encounter issue [#7](https://github.com/LiveHelperChat/mattermost/issues/7)
 
 https://docs.mattermost.com/administration/config-settings.html#enable-api-channel-deletion
+
+### Disable reopening old chats
+
+Make sure you have disabled re-opening old chats. https://doc.livehelperchat.com/docs/chat/configuration#reopen-chat-functionality-enabled
+
+Read issue [#8](https://github.com/LiveHelperChat/mattermost/issues/8)
