@@ -44,7 +44,7 @@ Youtube video can be found here https://youtu.be/MnJHuHXbiXY
     "gnello/php-mattermost-driver": "dev-master#e4ba6c4db5de05a1ca8685ed54adf8ab13afb448"
 },
 ``` 
-5. Update composer dependencies by executing `composer install` from `lhc_web` folder
+5. Update composer dependencies by executing `composer install` or `composer update` from `lhc_web` folder
 6. Clean cache. Just click clean cache in Live Helper Chat back office.
 7. Execute doc/install.sql on database manager or just run. You will have to wait 10 seconds for queries to be executed.
     ```
