@@ -37,17 +37,21 @@ Youtube video can be found here https://youtu.be/MnJHuHXbiXY
         'mattermost'
     ),
 ```
-4. Install composer requirements with. You have to download composer or just have it installed already.
+4. Modify main [`composer.json`](https://github.com/LiveHelperChat/livehelperchat/blob/master/lhc_web/composer.json#L50) file under `lhc_web` folder and add 
 ``` 
-cd extension/mattermost && composer.phar install
+"require": {
+    ...
+    "gnello/php-mattermost-driver": "dev-master#e4ba6c4db5de05a1ca8685ed54adf8ab13afb448"
+},
 ``` 
-5. Clean cache. Just click clean cache in Live Helper Chat back office.
-6. Execute doc/install.sql on database manager or just run. You will have to wait 10 seconds for queries to be executed.
+5. Update composer dependencies by executing `composer install` from `lhc_web` folder
+6. Clean cache. Just click clean cache in Live Helper Chat back office.
+7. Execute doc/install.sql on database manager or just run. You will have to wait 10 seconds for queries to be executed.
     ```
     php cron.php -s site_admin -e mattermost -c cron/update_structure
     ```
-7. Navigate to back office of Live Helper Chat, under module you will find `Mattermost` section.
-8. To delete old Mattermost chats you should be having this cronjob
+8. Navigate to back office of Live Helper Chat, under module you will find `Mattermost` section.
+9. To delete old Mattermost chats you should be having this cronjob
     ```
     php cron.php -s site_admin -e mattermost -c cron/archive
     ```

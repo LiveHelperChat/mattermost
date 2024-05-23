@@ -230,8 +230,6 @@ class erLhcoreClassMattermostValidator
             $data = (array) $osTicketOptions->data;
         }
 
-        include_once 'extension/mattermost/vendor/autoload.php';
-
         $container = new \Pimple\Container([
             "driver" => [
                 'scheme' => (strpos($data['host'],'http://') !== false ? 'http' : 'https'),
