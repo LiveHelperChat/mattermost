@@ -21,6 +21,7 @@ if (isset($data['delete_after']) && is_numeric($data['delete_after']) && $data['
 
         if ($resp->getStatusCode() == 200) {
             $mmChat->removeThis();
+            $counter++;
             echo "Deleted chat - " . $mmChat->mm_ch_id,"\n";
         } else {
             echo "Could not delete chat - " . $mmChat->mm_ch_id,"\n";
