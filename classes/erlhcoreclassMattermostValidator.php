@@ -660,7 +660,7 @@ class erLhcoreClassMattermostValidator
                     'attachments' => [
                         [
                             "pretext" => $intro_request,
-                            "text" => erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','To accept a chat from "' . $params['chat']->nick . '" please click accept'),
+                            "text" => erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','To accept a chat from') . ' "' . $params['chat']->nick . '" ' . erTranslationClassLhTranslation::getInstance()->getTranslation('module/mattermost','please click to accept'),
                             'actions' => [
                                 [
                                     'action_id' => 'update',
